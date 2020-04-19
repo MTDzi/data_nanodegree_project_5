@@ -1,3 +1,18 @@
+# Introduction
+
+
+## How to build the `docker-airflow` image
+
+Since I'm using the [`airflow.providers.amazon.aws`](https://airflow.readthedocs.io/en/latest/_api/airflow/providers/amazon/aws/operators/index.html),
+subpackage, I'm building the image with an additional `AIRFLOW_DEPS`, like so: 
+
+    docker build --rm --build-arg AIRFLOW_DEPS="aws" -t puckel/docker-airflow .
+
+## IaC for setting up the Redhift service
+
+I used the `exploration.ipynb` notebook (which I took from my solution [here](https://github.com/MTDzi/data_nanodegree_project_3))
+for setting up Redhift but also to see what's in the data.
+
 # docker-airflow
 [![CI status](https://github.com/puckel/docker-airflow/workflows/CI/badge.svg?branch=master)](https://github.com/puckel/docker-airflow/actions?query=workflow%3ACI+branch%3Amaster+event%3Apush)
 [![Docker Build status](https://img.shields.io/docker/build/puckel/docker-airflow?style=plastic)](https://hub.docker.com/r/puckel/docker-airflow/tags?ordering=last_updated)

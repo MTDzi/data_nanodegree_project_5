@@ -3,6 +3,7 @@ import os
 
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 from airflow.operators import (
     StageToRedshiftOperator,
     LoadFactOperator,
@@ -21,8 +22,10 @@ default_args = {
     'start_date': datetime(2020, 4, 15),
     'email': ['mtdziubinski@gmail.com'],
     'email_on_failure': False,
-    "retries": 1,
-    "retry_delay": timedelta(minutes=120),
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'catchup': False
 }
 
 dag = DAG(
@@ -42,9 +45,13 @@ stage_events_to_redshift = StageToRedshiftOperator(
     dag=dag,
 )
 
-stage_songs_to_redshift = StageToRedshiftOperator(
-    task_id='Stage_songs',
-    dag=dag,
+# stage_songs_to_redshift = StageToRedshiftOperator(
+#     task_id='Stage_songs',
+#     dag=dag,
+# )
+
+stage_songs_to_redshift = S3ToRedshiftTransfer(
+
 )
 
 load_songplays_table = LoadFactOperator(
@@ -78,6 +85,18 @@ run_quality_checks = DataQualityOperator(
 )
 
 end_operator = DummyOperator(
-    task_id='Stop_execution',
+    task_id='End_execution',
     dag=dag,
 )
+
+start_operator \
+    >> [stage_events_to_redshift, stage_songs_to_redshift] \
+    >> load_songplays_table \
+    >> [
+        load_song_dimension_table,
+        load_artist_dimension_table,
+        load_time_dimension_table,
+        load_user_dimension_table,
+    ] \
+    >> run_quality_checks \
+    >> end_operator

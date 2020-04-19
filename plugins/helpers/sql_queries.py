@@ -40,3 +40,11 @@ class SqlQueries:
                extract(month from start_time), extract(year from start_time), extract(dayofweek from start_time)
         FROM songplays
     """)
+
+    @staticmethod
+    def get_copy_json_query(table_name, s3_url, iam_role, json_paths='auto'):
+        return (
+            f"COPY {table_name} FROM '{s3_url}'"
+            f" IAM_ROLE '{iam_role}'"
+            f" FORMAT AS JSON '{json_paths}'"
+        )
