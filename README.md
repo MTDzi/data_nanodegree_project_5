@@ -6,7 +6,7 @@
 Since I'm using the [`airflow.providers.amazon.aws`](https://airflow.readthedocs.io/en/latest/_api/airflow/providers/amazon/aws/operators/index.html),
 subpackage, I'm building the image with an additional `AIRFLOW_DEPS`, like so: 
 
-    docker build --rm --build-arg AIRFLOW_DEPS="aws" -t puckel/docker-airflow .
+    docker build --rm --build-arg AIRFLOW_DEPS="aws" --build-arg AIRFLOW_UI_USER="some_user_name" --build-arg AIRFLOW_UI_PASSWORD="some_password" -t puckel/docker-airflow .
 
 ## IaC for setting up the Redhift service
 

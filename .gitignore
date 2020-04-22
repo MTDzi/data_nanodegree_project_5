@@ -1,3 +1,7 @@
+# Data Engineering Project 4
+notebooks/dwh.cfg  # Contains creds for AWS
+
+
 ### Vim ###
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]

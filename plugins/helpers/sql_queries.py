@@ -42,9 +42,10 @@ class SqlQueries:
     """)
 
     @staticmethod
-    def get_copy_json_query(table_name, s3_url, iam_role, json_paths='auto'):
+    def get_copy_json_query(schema, table_name, s3_url, aws_key, aws_secret, json_paths='auto'):
         return (
-            f"COPY {table_name} FROM '{s3_url}'"
-            f" IAM_ROLE '{iam_role}'"
+            f"COPY {schema}.{table_name} FROM '{s3_url}'"
+            " WITH CREDENTIALS"
+            f" 'aws_access_key_id={aws_key};aws_secret_access_key={aws_secret}'"
             f" FORMAT AS JSON '{json_paths}'"
         )

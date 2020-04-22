@@ -6,6 +6,7 @@ services:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
+            - FERNET_KEY=fFGBrumG2o-r8CSgLdpstrePP42_gnQRFXyEFojG4DI=
         logging:
             options:
                 max-size: 10m
@@ -19,6 +20,7 @@ services:
         environment:
             - LOAD_EX=n
             - EXECUTOR=Local
+            - FERNET_KEY=fFGBrumG2o-r8CSgLdpstrePP42_gnQRFXyEFojG4DI=
         logging:
             options:
                 max-size: 10m

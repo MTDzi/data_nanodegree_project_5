@@ -3,7 +3,6 @@ import os
 
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 from airflow.operators import (
     StageToRedshiftOperator,
     LoadFactOperator,
@@ -12,9 +11,7 @@ from airflow.operators import (
 )
 from helpers import SqlQueries
 
-
-AWS_KEY = os.environ.get('AWS_KEY')
-AWS_SECRET = os.environ.get('AWS_SECRET')
+SCHEMA = 'sparkify'
 
 
 default_args = {
@@ -43,15 +40,25 @@ start_operator = DummyOperator(
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
     dag=dag,
+    schema=SCHEMA,
+    table_name='event_staging',
+    s3_url='s3://udacity-dend/log_data',
+    redshift_conn_id='redshift',
+    aws_conn_id='aws_default',
+    json_paths='s3://udacity-dend/log_json_path.json',
+    autocommit=False,
 )
 
-# stage_songs_to_redshift = StageToRedshiftOperator(
-#     task_id='Stage_songs',
-#     dag=dag,
-# )
-
-stage_songs_to_redshift = S3ToRedshiftTransfer(
-
+stage_songs_to_redshift = StageToRedshiftOperator(
+    task_id='Stage_songs',
+    dag=dag,
+    schema=SCHEMA,
+    table_name='song_staging',
+    s3_url='s3://udacity-dend/song_data',
+    redshift_conn_id='redshift',
+    aws_conn_id='aws_default',
+    json_paths='auto',
+    autocommit=False,
 )
 
 load_songplays_table = LoadFactOperator(
@@ -90,13 +97,13 @@ end_operator = DummyOperator(
 )
 
 start_operator \
-    >> [stage_events_to_redshift, stage_songs_to_redshift] \
-    >> load_songplays_table \
-    >> [
-        load_song_dimension_table,
-        load_artist_dimension_table,
-        load_time_dimension_table,
-        load_user_dimension_table,
-    ] \
-    >> run_quality_checks \
-    >> end_operator
+    >> [stage_events_to_redshift, stage_songs_to_redshift] >> end_operator
+    # >> load_songplays_table \
+    # >> [
+    #     load_song_dimension_table,
+    #     load_artist_dimension_table,
+    #     load_time_dimension_table,
+    #     load_user_dimension_table,
+    # ] \
+    # >> run_quality_checks \
+    # >> end_operator
