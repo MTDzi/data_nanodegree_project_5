@@ -2,7 +2,6 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.S3_hook import S3Hook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-from helpers import SqlQueries
 
 
 class StageToRedshiftOperator(BaseOperator):
@@ -20,31 +19,26 @@ class StageToRedshiftOperator(BaseOperator):
     @apply_defaults
     def __init__(
             self,
-            schema,
             table_name,
             s3_url,
             redshift_conn_id,
             aws_conn_id,
             json_paths='auto',
-            autocommit=True,
             *args, **kwargs,
     ):
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
-        self.schema = schema
         self.table_name = table_name
         self.s3_url = s3_url
         self.redshift_conn_id = redshift_conn_id
         self.aws_conn_id = aws_conn_id
         self.json_paths = json_paths
-        self.autocommit = autocommit
 
     def execute(self, context):
-        self.hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        self.redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         self.s3 = S3Hook(aws_conn_id=self.aws_conn_id)
         credentials = self.s3.get_credentials()
 
-        copy_query = SqlQueries.get_copy_json_query(
-            schema=self.schema,
+        copy_query = self.get_copy_json_query(
             table_name=self.table_name,
             s3_url=self.s3_url,
             aws_key=credentials.access_key,
@@ -53,8 +47,17 @@ class StageToRedshiftOperator(BaseOperator):
         )
 
         self.log.info('Executing COPY command...')
-        self.hook.run(copy_query, self.autocommit)
-        self.log.info("COPY command complete...")
+        self.redshift_hook.run(copy_query)
+        self.log.info('COPY command complete...')
+
+    @staticmethod
+    def get_copy_json_query(table_name, s3_url, aws_key, aws_secret, json_paths='auto'):
+        return (
+            f"COPY {table_name} FROM '{s3_url}'"
+            " WITH CREDENTIALS"
+            f" 'aws_access_key_id={aws_key};aws_secret_access_key={aws_secret}'"
+            f" FORMAT AS JSON '{json_paths}';"
+        )
 
 
 

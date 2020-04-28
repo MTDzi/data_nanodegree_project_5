@@ -7,11 +7,26 @@ Since I'm using the [`airflow.providers.amazon.aws`](https://airflow.readthedocs
 subpackage, I'm building the image with an additional `AIRFLOW_DEPS`, like so: 
 
     docker build --rm --build-arg AIRFLOW_DEPS="aws" --build-arg AIRFLOW_UI_USER="some_user_name" --build-arg AIRFLOW_UI_PASSWORD="some_password" -t puckel/docker-airflow .
+    
+## The main DAG
+
+The main DAG is defined in the `dags/project_5_dag.py` file. This is its Graph View:
+
+![](./images/example-dag.png)
 
 ## IaC for setting up the Redhift service
 
 I used the `exploration.ipynb` notebook (which I took from my solution [here](https://github.com/MTDzi/data_nanodegree_project_3))
-for setting up Redhift but also to see what's in the data.
+for setting up Redhift, creating the schema, the tables, as well as deleting the Redshift cluster
+once everything is done.
+
+## Get it to run
+
+Before running the main DAG, you need to:
+ 1. Define a `"aws_default"` connection in the UI
+ 2. Define a `"redshift"` connection in the UI
+ 
+ 
 
 # docker-airflow
 [![CI status](https://github.com/puckel/docker-airflow/workflows/CI/badge.svg?branch=master)](https://github.com/puckel/docker-airflow/actions?query=workflow%3ACI+branch%3Amaster+event%3Apush)

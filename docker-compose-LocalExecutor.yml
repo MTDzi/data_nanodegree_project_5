@@ -5,7 +5,7 @@ services:
         environment:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
+            - POSTGRES_DBairflow
             - FERNET_KEY=fFGBrumG2o-r8CSgLdpstrePP42_gnQRFXyEFojG4DI=
         logging:
             options:
