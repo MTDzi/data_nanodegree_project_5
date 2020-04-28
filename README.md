@@ -1,12 +1,24 @@
 # Introduction
 
+This repo contains a solution for the Data Engineering Project 5: Data Pipelines (in Airflow).
+
+It's a fork of the `puckel/docker-airflow` repo but contains many changes that allowed me to use it for this project.
+Among others:
+1) it contains the Operators needed for the project's DAG to run
+2) it uses Fernet encryption to ensure the passwords and variables are, well, encrypted
+3) it makes use of the authentication feature (which doesn't make much sense when working locally, but the plan is to use it later on in the Capstone Project)
 
 ## How to build the `docker-airflow` image
 
 Since I'm using the [`airflow.providers.amazon.aws`](https://airflow.readthedocs.io/en/latest/_api/airflow/providers/amazon/aws/operators/index.html),
 subpackage, I'm building the image with an additional `AIRFLOW_DEPS`, like so: 
 
-    docker build --rm --build-arg AIRFLOW_DEPS="aws" --build-arg AIRFLOW_UI_USER="some_user_name" --build-arg AIRFLOW_UI_PASSWORD="some_password" -t puckel/docker-airflow .
+    docker build \
+        --rm \
+        --build-arg AIRFLOW_DEPS="aws" \
+        --build-arg AIRFLOW_UI_USER="some_user_name" \
+        --build-arg AIRFLOW_UI_PASSWORD="some_password" \
+        -t puckel/docker-airflow .
     
 ## The main DAG
 
@@ -17,16 +29,23 @@ The main DAG is defined in the `dags/project_5_dag.py` file. This is its Graph V
 ## IaC for setting up the Redhift service
 
 I used the `exploration.ipynb` notebook (which I took from my solution [here](https://github.com/MTDzi/data_nanodegree_project_3))
-for setting up Redhift, creating the schema, the tables, as well as deleting the Redshift cluster
-once everything is done.
+for setting up Redshift, the tables, as well as deleting the Redshift cluster
+once everything is done (although in the end it was easier to just kill the cluster in the AWS console).
 
 ## Get it to run
 
-Before running the main DAG, you need to:
- 1. Define a `"aws_default"` connection in the UI
- 2. Define a `"redshift"` connection in the UI
+There's a script, `all_in_one.sh`, that does all the work, please check it out to see the steps.
+However, that's not all, you'll still need to set up the connections in the Airflow UI.
+Initially, my plan was to have those connections defined in a file of sorts but thus far I've failed to find
+a secure way of doing that, so I left that as a future improvement.
+
+Before running the main DAG, in the Airflow UI you need to:
+ 1. Define a `"aws_default"` connection
+ 2. Define a `"redshift"` connection
  
- 
+And after that, turn the DAG "On", and click "Toggle DAG", and... that's pretty
+
+**What follows is the original README from the `puckle/docker-airflow` repo.**
 
 # docker-airflow
 [![CI status](https://github.com/puckel/docker-airflow/workflows/CI/badge.svg?branch=master)](https://github.com/puckel/docker-airflow/actions?query=workflow%3ACI+branch%3Amaster+event%3Apush)
