@@ -9,6 +9,7 @@ from airflow.operators import (
     DataQualityOperator,
 )
 
+DELETE_LOAD = False
 
 default_args = {
     'owner': 'MTDzi',
@@ -25,7 +26,7 @@ dag = DAG(
     'airflow_project',
     default_args=default_args,
     description='Load and transform data in Redshift with Airflow',
-    schedule_interval=None,
+    schedule_interval='@hourly',
 )
 
 start_operator = DummyOperator(
@@ -59,6 +60,7 @@ load_songplays_table = LoadFactOperator(
     table_name='songplays',
     redshift_conn_id='redshift',
     aws_conn_id='aws_default',
+    delete_load=DELETE_LOAD,
 )
 
 load_users_dimension_table = LoadDimensionOperator(
@@ -67,6 +69,7 @@ load_users_dimension_table = LoadDimensionOperator(
     table_name='users',
     redshift_conn_id='redshift',
     aws_conn_id='aws_default',
+    delete_load=DELETE_LOAD,
 )
 
 load_songs_dimension_table = LoadDimensionOperator(
@@ -75,6 +78,7 @@ load_songs_dimension_table = LoadDimensionOperator(
     table_name='songs',
     redshift_conn_id='redshift',
     aws_conn_id='aws_default',
+    delete_load=DELETE_LOAD,
 )
 
 load_artist_dimension_table = LoadDimensionOperator(
@@ -84,6 +88,7 @@ load_artist_dimension_table = LoadDimensionOperator(
     redshift_conn_id='redshift',
     aws_conn_id='aws_default',
     autocommit=True,
+    delete_load=DELETE_LOAD,
 )
 
 load_time_dimension_table = LoadDimensionOperator(
@@ -92,6 +97,7 @@ load_time_dimension_table = LoadDimensionOperator(
     table_name='time',
     redshift_conn_id='redshift',
     aws_conn_id='aws_default',
+    delete_load=DELETE_LOAD,
 )
 
 tables_to_check = [

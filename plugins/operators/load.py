@@ -12,17 +12,24 @@ class _LoadOperator(BaseOperator):
             table_name='',
             redshift_conn_id='',
             aws_conn_id='',
+            delete_load=False,
             *args, **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.insert_query = SqlQueries.get_insert_query(table_name)
         self.redshift_conn_id = redshift_conn_id
         self.aws_conn_id = aws_conn_id
+        self.delete_load = delete_load
 
     def execute(self, context):
         self.log.info('Starting...')
         self.redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         self.log.info('Done setting up a Redshift hook')
+
+        if self.delete_load:
+            delete_query = f'DELETE FROM {self.table_name};'
+            self.log.info(f'Running:\n\t{delete_query}\nfirst')
+            self.redshift_hook.run(delete_query)
 
         self.log.info(f'Running the insert query:\n\n{self.insert_query}')
         self.redshift_hook.run(self.insert_query)
